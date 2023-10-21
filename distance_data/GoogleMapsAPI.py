@@ -45,3 +45,4 @@ for i in range(len(apt_df)):
         distance_df = pd.concat([distance_df, new_row], ignore_index=True)
 
 distance_df.to_csv('distance_data/distance_data.csv', index=False)
+
