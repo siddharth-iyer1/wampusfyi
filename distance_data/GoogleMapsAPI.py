@@ -6,6 +6,9 @@ import pandas as pd
 apartments = csv.DictReader(open('/Users/siddharthiyer/Documents/GitHub/wampusfyi/distance_data/apartment_addresses.csv'))
 colleges = csv.DictReader(open('/Users/siddharthiyer/Documents/GitHub/wampusfyi/distance_data/college_addresses.csv'))
 """
+
+# Takes CSV files of Addresses of Apartments and Colleges at UT and returns a CSV of distances between all combinations
+
 api_key = "AIzaSyDoPCPo-aK28JSPXhMRHBdzL8jCpjrpvfc"
 client = Client(api_key)
 
