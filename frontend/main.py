@@ -8,6 +8,11 @@ TABLE_ID = "wampusfyi-402717.FormResponses.RentPrices"
 
 client = bigquery.Client(project=PROJECT_ID)
 
+query = "SELECT * FROM wampusfyi-402717.FormResponses.RentPrices"
+client.run_sync_query(query=query)
+
+
+
 st.title("Find Apartments")
 
 def load_data():
