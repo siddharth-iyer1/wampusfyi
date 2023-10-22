@@ -104,26 +104,28 @@ with findAptTab:
             return matching_distance[0] if len(matching_distance) > 0 else None
 
         apartment_distance_data = apartments_filtered_all.copy()
-        apartment_distance_data['DISTANCE TO {}'.format(selected_college)] = apartment_distance_data.apply(calculate_distance, axis=1)
+        apartment_distance_data['Distance to {}'.format(selected_college)] = apartment_distance_data.apply(calculate_distance, axis=1)
 
-        final_apartment_data = apartment_distance_data[[LOCATION, BEDROOMS, BATHROOMS, 'DISTANCE TO {}'.format(selected_college), SATISFACTION, RENT]]
+        final_apartment_data = apartment_distance_data[[LOCATION, BEDROOMS, BATHROOMS, 'Distance to {}'.format(selected_college), SATISFACTION, RENT]]
         final_apartment_data.rename(columns=rename_dict, inplace=True)
-        final_apartment_data["APARTMENT"] = final_apartment_data.apply(
-            lambda row: f"<a target=\"_self\" href='{BASE_URL}?apartment={row['LOCATION'].replace(' ', '%20')}&bedrooms={row['BEDROOMS']}&bathrooms={row['BATHROOMS']}'>{row['LOCATION']}</a>",
+        final_apartment_data["Apartment"] = final_apartment_data.apply(
+            lambda row: f"<a target=\"_self\" href='{BASE_URL}?apartment={row['Location'].replace(' ', '%20')}&bedrooms={row['Bedrooms']}&bathrooms={row['Bathrooms']}'>{row['Location']}</a>",
             axis=1, result_type='reduce'
         )
-        final_apartment_data = final_apartment_data.drop("LOCATION", axis=1)
+        final_apartment_data = final_apartment_data.drop("Location", axis=1)
 
-        final_apartment_data["RENT"] = final_apartment_data["RENT"].astype(float)  # Ensure RENT is in a numeric format
-        grouped_apartment_data = final_apartment_data.groupby("APARTMENT", as_index=False).agg({
-            "BEDROOMS": "first",  # Assuming BEDROOMS, BATHROOMS, WALKTIME, SATISFACTION are the same for all rows of the same APARTMENT
-            "BATHROOMS": "first",
-            "SATISFACTION": lambda x: round(x.mean(), 2),
-            "RENT": lambda x: round(x.mean(), 2),  # Calculate the average RENT
-            'DISTANCE TO {}'.format(selected_college): "first"  # Assuming DISTANCE is the same for all rows of the same APARTMENT
+        final_apartment_data["Rent"] = final_apartment_data["Rent"].astype(float)  # Ensure RENT is in a numeric format
+        grouped_apartment_data = final_apartment_data.groupby("Apartment", as_index=False).agg({
+            "Bedrooms": "first",  # Assuming BEDROOMS, BATHROOMS, WALKTIME, SATISFACTION are the same for all rows of the same APARTMENT
+            "Bathrooms": "first",
+            "Satisfaction": lambda x: round(x.mean(), 2),
+            "Rent": lambda x: round(x.mean(), 2),  # Calculate the average RENT
+            'Distance to {}'.format(selected_college): "first"  # Assuming DISTANCE is the same for all rows of the same APARTMENT
         })
+        
+        grouped_apartment_data[f'Distance to {selected_college}'] = grouped_apartment_data[f'Distance to {selected_college}'].apply(lambda x: f"{x} mi." if pd.notnull(x) else "N/A")
 
-        cols = ["APARTMENT"] + [col for col in grouped_apartment_data.columns if col != "APARTMENT"]
+        cols = ["Apartment"] + [col for col in grouped_apartment_data.columns if col != "Apartment"]
         grouped_apartment_data = grouped_apartment_data[cols]
         st.write("Previous Rates")
         st.write(grouped_apartment_data.to_html(escape=False, index=False), unsafe_allow_html=True)
