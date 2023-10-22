@@ -16,13 +16,9 @@ BASE_URL = "http://localhost:8501"
 CLG_ADD_TABLE_ID = "wampusfyi-402717.DistanceData.ClgAddresses"
 DISTANCE_TABLE_ID = "wampusfyi-402717.DistanceData.Distances"
 AMENITY_TABLE_ID = "wampusfyi-402717.ApartmentDetails.AptAmenities"
-<<<<<<< HEAD
 REVIEWS_TABLE_ID = "wampusfyi-402717.ApartmentDetails.Reviews"
-=======
 APT_TABLE_ID = 'wampusfyi-402717.DistanceData.AptAddresses'
 REVIEWS_TABLE_ID = "wampusfyi-402717.ApartmentDetails.Reviews"
-
->>>>>>> 71a58892b566c32ab932371a78b725823430d3c3
 
 
 rename_dict = {

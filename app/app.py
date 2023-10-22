@@ -160,15 +160,6 @@ with searchAptTab:
         with col1:
             st.subheader("Previous Rates")
             st.write(specific_apartment_data_display.to_html(escape=False, index=False), unsafe_allow_html=True)
-
-            st.divider()
-            # Amenities section
-            st.subheader("Key Amenities")
-            amenity_cols = amenity_data_df.columns[1:].to_list()
-            apt = amenity_data_df.loc[amenity_data_df['Apartment'] == apartment_param]
-            for col, val in apt.items():
-                if val.any() and col != 'Apartment':
-                    st.text(col.replace('_', ' '))
             
             st.divider()
             # Amenities section
@@ -197,12 +188,12 @@ with searchAptTab:
             st.caption('Powered by Google')
     apartment_param = ''
 
-        st.subheader("Key Amenities")
-        amenity_cols = amenity_data_df.columns[1:].to_list()
-        apt = amenity_data_df.loc[apartment_data_df[LOCATION] == apartment_param]
-        for col, val in apt.items():
-            if val.any() and col != 'Apartment':
-                st.text(col.replace('_', ' '))
+    st.subheader("Key Amenities")
+    amenity_cols = amenity_data_df.columns[1:].to_list()
+    apt = amenity_data_df.loc[apartment_data_df[LOCATION] == apartment_param]
+    for col, val in apt.items():
+        if val.any() and col != 'Apartment':
+            st.text(col.replace('_', ' '))
 
         
 with findAptTab:
