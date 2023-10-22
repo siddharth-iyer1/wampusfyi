@@ -20,13 +20,13 @@ AMENITY_TABLE_ID = "wampusfyi-402717.ApartmentDetails.AptAmenities"
 
 
 rename_dict = {
-    LOCATION: 'LOCATION',
-    BEDROOMS: 'BEDROOMS',
-    BATHROOMS: 'BATHROOMS',
-    WALKTIME: 'WALKTIME',
-    SATISFACTION: 'SATISFACTION',
-    RENT: 'RENT',
-    LEASESIGN: 'LEASESIGN'
+    LOCATION: 'Location',
+    BEDROOMS: 'Bedrooms',
+    BATHROOMS: 'Bathrooms',
+    WALKTIME: 'Walktime',
+    SATISFACTION: 'Satisfaction',
+    RENT: 'Rent',
+    LEASESIGN: 'Lease Signed'
 }
 
 bigquery_client = bigquery.Client(project=PROJECT_ID)
