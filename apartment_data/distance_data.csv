@@ -1,0 +1,226 @@
+Apartment,School,Distance
+Ion,Cockrell,0.75
+Ion,CNS,0.5
+Ion,Architecture,0.19
+Ion,Moody,0.56
+Ion,COLA,0.25
+Ion,McCombs,0.43
+Ion,Fine Arts,0.81
+Ion,Education,0.62
+Ion,Geosciences,0.62
+Lark,Cockrell,0.81
+Lark,CNS,0.56
+Lark,Architecture,0.25
+Lark,Moody,0.62
+Lark,COLA,0.31
+Lark,McCombs,0.5
+Lark,Fine Arts,0.87
+Lark,Education,0.68
+Lark,Geosciences,0.68
+Lark,Cockrell,0.81
+Lark,CNS,0.56
+Lark,Architecture,0.25
+Lark,Moody,0.62
+Lark,COLA,0.31
+Lark,McCombs,0.5
+Lark,Fine Arts,0.87
+Lark,Education,0.68
+Lark,Geosciences,0.68
+Rise,Cockrell,0.56
+Rise,CNS,0.25
+Rise,Architecture,0.25
+Rise,Moody,0.25
+Rise,COLA,0.37
+Rise,McCombs,0.43
+Rise,Fine Arts,0.68
+Rise,Education,0.68
+Rise,Geosciences,0.5
+Rise,Cockrell,0.56
+Rise,CNS,0.25
+Rise,Architecture,0.25
+Rise,Moody,0.25
+Rise,COLA,0.37
+Rise,McCombs,0.43
+Rise,Fine Arts,0.68
+Rise,Education,0.68
+Rise,Geosciences,0.5
+26 West,Cockrell,0.81
+26 West,CNS,0.68
+26 West,Architecture,0.62
+26 West,Moody,0.25
+26 West,COLA,0.75
+26 West,McCombs,0.87
+26 West,Fine Arts,1.06
+26 West,Education,1.12
+26 West,Geosciences,0.87
+Rambler,Cockrell,0.68
+Rambler,CNS,0.5
+Rambler,Architecture,0.5
+Rambler,Moody,0.12
+Rambler,COLA,0.62
+Rambler,McCombs,0.68
+Rambler,Fine Arts,0.93
+Rambler,Education,0.99
+Rambler,Geosciences,0.75
+Skyloft,Cockrell,0.75
+Skyloft,CNS,0.43
+Skyloft,Architecture,0.25
+Skyloft,Moody,0.43
+Skyloft,COLA,0.37
+Skyloft,McCombs,0.5
+Skyloft,Fine Arts,0.81
+Skyloft,Education,0.81
+Skyloft,Geosciences,0.62
+Skyloft,Cockrell,0.75
+Skyloft,CNS,0.43
+Skyloft,Architecture,0.25
+Skyloft,Moody,0.43
+Skyloft,COLA,0.37
+Skyloft,McCombs,0.5
+Skyloft,Fine Arts,0.81
+Skyloft,Education,0.81
+Skyloft,Geosciences,0.62
+The Mark,Cockrell,0.87
+The Mark,CNS,0.56
+The Mark,Architecture,0.43
+The Mark,Moody,0.56
+The Mark,COLA,0.62
+The Mark,McCombs,0.75
+The Mark,Fine Arts,0.99
+The Mark,Education,0.99
+The Mark,Geosciences,0.81
+Waterloo,Cockrell,0.68
+Waterloo,CNS,0.37
+Waterloo,Architecture,0.37
+Waterloo,Moody,0.37
+Waterloo,COLA,0.5
+Waterloo,McCombs,0.56
+Waterloo,Fine Arts,0.81
+Waterloo,Education,0.81
+Waterloo,Geosciences,0.62
+GrandMarc,Cockrell,0.62
+GrandMarc,CNS,0.5
+GrandMarc,Architecture,0.5
+GrandMarc,Moody,0.12
+GrandMarc,COLA,0.62
+GrandMarc,McCombs,0.68
+GrandMarc,Fine Arts,0.93
+GrandMarc,Education,0.93
+GrandMarc,Geosciences,0.75
+Moontower,Cockrell,0.75
+Moontower,CNS,0.43
+Moontower,Architecture,0.19
+Moontower,Moody,0.43
+Moontower,COLA,0.31
+Moontower,McCombs,0.43
+Moontower,Fine Arts,0.81
+Moontower,Education,0.75
+Moontower,Geosciences,0.56
+Signature,Cockrell,0.87
+Signature,CNS,0.62
+Signature,Architecture,0.31
+Signature,Moody,0.68
+Signature,COLA,0.31
+Signature,McCombs,0.56
+Signature,Fine Arts,0.93
+Signature,Education,0.75
+Signature,Geosciences,0.75
+2400 Nueces,Cockrell,0.68
+2400 Nueces,CNS,0.37
+2400 Nueces,Architecture,0.37
+2400 Nueces,Moody,0.25
+2400 Nueces,COLA,0.5
+2400 Nueces,McCombs,0.56
+2400 Nueces,Fine Arts,0.81
+2400 Nueces,Education,0.81
+2400 Nueces,Geosciences,0.62
+Nine at Rio,Cockrell,0.87
+Nine at Rio,CNS,0.62
+Nine at Rio,Architecture,0.31
+Nine at Rio,Moody,0.68
+Nine at Rio,COLA,0.31
+Nine at Rio,McCombs,0.56
+Nine at Rio,Fine Arts,0.93
+Nine at Rio,Education,0.75
+Nine at Rio,Geosciences,0.75
+The Standard,Cockrell,0.81
+The Standard,CNS,0.56
+The Standard,Architecture,0.43
+The Standard,Moody,0.5
+The Standard,COLA,0.56
+The Standard,McCombs,0.68
+The Standard,Fine Arts,0.99
+The Standard,Education,0.99
+The Standard,Geosciences,0.75
+Pointe on Rio,Cockrell,0.93
+Pointe on Rio,CNS,0.62
+Pointe on Rio,Architecture,0.37
+Pointe on Rio,Moody,0.75
+Pointe on Rio,COLA,0.37
+Pointe on Rio,McCombs,0.56
+Pointe on Rio,Fine Arts,0.93
+Pointe on Rio,Education,0.75
+Pointe on Rio,Geosciences,0.81
+Villas on Rio,Cockrell,0.81
+Villas on Rio,CNS,0.5
+Villas on Rio,Architecture,0.25
+Villas on Rio,Moody,0.62
+Villas on Rio,COLA,0.37
+Villas on Rio,McCombs,0.5
+Villas on Rio,Fine Arts,0.87
+Villas on Rio,Education,0.81
+Villas on Rio,Geosciences,0.62
+Crest at Pearl,Cockrell,0.93
+Crest at Pearl,CNS,0.68
+Crest at Pearl,Architecture,0.43
+Crest at Pearl,Moody,0.75
+Crest at Pearl,COLA,0.37
+Crest at Pearl,McCombs,0.62
+Crest at Pearl,Fine Arts,0.99
+Crest at Pearl,Education,0.81
+Crest at Pearl,Geosciences,0.81
+Villas on 26th,Cockrell,0.81
+Villas on 26th,CNS,0.68
+Villas on 26th,Architecture,0.68
+Villas on 26th,Moody,0.31
+Villas on 26th,COLA,0.81
+Villas on 26th,McCombs,0.87
+Villas on 26th,Fine Arts,1.12
+Villas on 26th,Education,1.12
+Villas on 26th,Geosciences,0.93
+Inspire on 22nd,Cockrell,0.75
+Inspire on 22nd,CNS,0.5
+Inspire on 22nd,Architecture,0.19
+Inspire on 22nd,Moody,0.56
+Inspire on 22nd,COLA,0.37
+Inspire on 22nd,McCombs,0.5
+Inspire on 22nd,Fine Arts,0.81
+Inspire on 22nd,Education,0.81
+Inspire on 22nd,Geosciences,0.62
+Quarters Nueces,Cockrell,0.68
+Quarters Nueces,CNS,0.43
+Quarters Nueces,Architecture,0.31
+Quarters Nueces,Moody,0.43
+Quarters Nueces,COLA,0.43
+Quarters Nueces,McCombs,0.56
+Quarters Nueces,Fine Arts,0.87
+Quarters Nueces,Education,0.87
+Quarters Nueces,Geosciences,0.68
+The Block on 25th,Cockrell,0.81
+The Block on 25th,CNS,0.62
+The Block on 25th,Architecture,0.56
+The Block on 25th,Moody,0.37
+The Block on 25th,COLA,0.75
+The Block on 25th,McCombs,0.81
+The Block on 25th,Fine Arts,1.06
+The Block on 25th,Education,1.06
+The Block on 25th,Geosciences,0.87
+Twenty Two Fifteen,Cockrell,0.81
+Twenty Two Fifteen,CNS,0.5
+Twenty Two Fifteen,Architecture,0.25
+Twenty Two Fifteen,Moody,0.5
+Twenty Two Fifteen,COLA,0.43
+Twenty Two Fifteen,McCombs,0.56
+Twenty Two Fifteen,Fine Arts,0.87
+Twenty Two Fifteen,Education,0.87
+Twenty Two Fifteen,Geosciences,0.68
