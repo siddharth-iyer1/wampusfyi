@@ -31,14 +31,6 @@ def load_distance_data():
     distance_data_df.columns = ['Apartment', 'School', 'Distance']
     return distance_data_df
 
-# Load distance data from BigQuery
-distance_data_rows = bigquery_client.list_rows(DISTANCE_TABLE_ID)
-distance_data_df = distance_data_rows.to_dataframe()
-distance_data_df.columns = ['Apartment', 'School', 'Distance']
-
-amenity_data_rows=bigquery_client.list_rows(AMENITY_TABLE_ID)
-amenity_data_df = amenity_data_rows.to_dataframe()
-
 # Load data from BigQuery
 apartment_data_df = load_apartment_data()
 college_data_df = load_college_data()
@@ -49,30 +41,29 @@ apartment_param = get_param("apartment")
 bedrooms_param = get_param("bedrooms")
 bathrooms_param = get_param("bathrooms")
 
+
+
 # Create tabs
 searchAptTab, findAptTab = st.tabs(PAGES)
 
 with searchAptTab:
-
+        
     st.markdown("<br>", unsafe_allow_html=True)
-
+    
     apartment_search_input = st.text_input("Search for an apartment:", value=apartment_param if apartment_param else '')
     search_button_clicked = st.button("Search")
 
     if search_button_clicked:
-        if apartment_search_input != '':  # Check if the input has text
-            cleaned_input = apartment_search_input.strip().lower()
-            cleaned_apartment_names = apartment_data_df[LOCATION].str.strip().str.lower().unique()
-            if cleaned_input in cleaned_apartment_names:
-                # Convert back to original case to use as parameter
-                original_case_apartment = apartment_data_df[apartment_data_df[LOCATION].str.strip().str.lower() == cleaned_input][LOCATION].values[0]
-                apartment_param = original_case_apartment
-                st.experimental_set_query_params(apartment=original_case_apartment)
-                st.experimental_rerun()
-            else:
-                st.write("Apartment not found")
+        cleaned_input = apartment_search_input.strip().lower()
+        cleaned_apartment_names = apartment_data_df[LOCATION].str.strip().str.lower().unique()
+        if cleaned_input in cleaned_apartment_names:
+            # Convert back to original case to use as parameter
+            original_case_apartment = apartment_data_df[apartment_data_df[LOCATION].str.strip().str.lower() == cleaned_input][LOCATION].values[0]
+            apartment_param = original_case_apartment
+            st.experimental_set_query_params(apartment=original_case_apartment)
+            st.experimental_rerun()
         else:
-            st.warning("Please enter a value to search.")
+            st.write("Apartment not found")
 
     if apartment_param:
     # Display apartment details below the search if there's a parameter in the URL or the recent search
@@ -103,14 +94,7 @@ with searchAptTab:
                 st.subheader("Monthly Rates Over Time for a {} x {} at {}".format(bedrooms_param, bathrooms_param, apartment_param))
                 st.pyplot(pot_graph)
 
-        st.subheader("Key Amenities")
-        amenity_cols = amenity_data_df.columns[1:].to_list()
-        apt = amenity_data_df.loc[apartment_data_df[LOCATION] == apartment_param]
-        for col, val in apt.items():
-            if val.any() and col != 'Apartment':
-                st.text(col.replace('_', ' '))
-
-
+        
 with findAptTab:
 
     st.title("Find Apartments")
@@ -150,7 +134,7 @@ with findAptTab:
             lambda row: f"<a target=\"_self\" href='{BASE_URL}?apartment={row['Location'].replace(' ', '%20')}&bedrooms={row['Bedrooms']}&bathrooms={row['Bathrooms']}'>{row['Location']}</a>",
             axis=1, result_type='reduce'
         )
-        final_apartment_data = final_apartment_data.drop("Location", axis=1)
+        # final_apartment_data = final_apartment_data.drop("Location", axis=1)
 
         final_apartment_data["Rent"] = final_apartment_data["Rent"].astype(float)  # Ensure RENT is in a numeric format
         grouped_apartment_data = final_apartment_data.groupby("Apartment", as_index=False).agg({
@@ -158,12 +142,36 @@ with findAptTab:
             "Bathrooms": "first",
             "Satisfaction": lambda x: round(x.mean(), 2),
             "Rent": lambda x: round(x.mean(), 2),  # Calculate the average RENT
-            'Distance to {}'.format(selected_college): "first"  # Assuming DISTANCE is the same for all rows of the same APARTMENT
+            'Distance to {}'.format(selected_college): "first",  # Assuming DISTANCE is the same for all rows of the same APARTMENT
         })
         
         grouped_apartment_data[f'Distance to {selected_college}'] = grouped_apartment_data[f'Distance to {selected_college}'].apply(lambda x: f"{x} mi." if pd.notnull(x) else "N/A")
 
         cols = ["Apartment"] + [col for col in grouped_apartment_data.columns if col != "Apartment"]
         grouped_apartment_data = grouped_apartment_data[cols]
-        st.write("Previous Rates")
-        st.write(grouped_apartment_data.to_html(escape=False, index=False), unsafe_allow_html=True)
+        
+        ""
+        ""
+        
+        if len(final_apartment_data) > 0:
+            # Extract summary information
+            highest_satisfaction = final_apartment_data.loc[final_apartment_data["Satisfaction"].idxmax()]
+            lowest_rent = final_apartment_data.loc[final_apartment_data["Rent"].idxmin()]
+            closest_distance = final_apartment_data.loc[final_apartment_data['Distance to {}'.format(selected_college)].idxmin()]
+            
+            # Create columns for layout
+            col1, col2 = st.columns([2, 1])
+
+            with col1:
+                lastfinalad = final_apartment_data.drop("Location", axis=1)
+                cols = ["Apartment"] + [col for col in lastfinalad.columns if col != "Apartment"]
+                lastfinalad = lastfinalad[cols]
+                
+                st.subheader("Previous Rates")
+                st.write(lastfinalad.to_html(escape=False, index=False), unsafe_allow_html=True)
+                
+            with col2:
+                st.subheader("Summary")
+                st.markdown(f"**Highest Average Satisfaction:** {highest_satisfaction['Location']} ({highest_satisfaction['Satisfaction']} satisfaction)")
+                st.markdown(f"**Lowest Average Rent:** {lowest_rent['Location']} (${lowest_rent['Rent']} per month)")
+                st.markdown(f"**Closest Distance to {selected_college}:** {closest_distance['Location']} ({closest_distance['Distance to {}'.format(selected_college)]} mi)")
