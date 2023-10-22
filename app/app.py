@@ -63,7 +63,14 @@ apartment_param = get_param("apartment")
 bedrooms_param = get_param("bedrooms")
 bathrooms_param = get_param("bathrooms")
 
-st.markdown(f"<h1><span style='color: #cc5500'>Wampus.FYI</span>: UT Austin West Campus Apartment Info</h1>", unsafe_allow_html=True)
+st.markdown(f"<h1><a href='/' target='_self' style='color: #cc5500; text-decoration:none;'>Wampus.FYI</a>: UT Austin West Campus Apartment Info</h1>", unsafe_allow_html=True)
+
+icon_data = {
+    "url": "https://img.icons8.com/plasticine/100/000000/marker.png",
+    "width": 128,
+    "height":128,
+    "anchorY": 128
+}
 
 apt_rows = bigquery_client.list_rows(APT_TABLE_ID)
 apt_df = apt_rows.to_dataframe()
@@ -83,12 +90,14 @@ for i,row in apt_df.iterrows():
     marker_data.append({"name": row['Apartment'], "lat": lats[i], "lon": lons[i]})
     
 marker_layer = pdk.Layer(
-    "ScatterplotLayer",
+    "IconLayer",
     data=marker_data,
+    get_icon="icon_data",
     get_position=["lon", "lat"],
-    get_radius=25,  # Adjust the marker size as needed
+    get_size=25,  # Adjust the marker size as needed
     get_fill_color=[191, 87, 0],  # RGB color for markers (green in this example)
-    extruded=True,
+    pickable=True,
+    size_scale=15
 )
 
 view_state = pdk.ViewState(
@@ -100,13 +109,8 @@ view_state = pdk.ViewState(
 r = pdk.Deck(
     layers=[marker_layer],
     initial_view_state=view_state,
-    tooltip={
-        'html': '<b>Elevation Value:</b> {elevationValue}',
-        'style': {
-            'color': 'white'
-        }
-    }
 )
+
 st.pydeck_chart(r)
 
 st.subheader("Apartment Finder")
@@ -122,7 +126,7 @@ with searchAptTab:
     search_button_clicked = st.button("Search")
 
     if search_button_clicked:
-        if apartment_search_input != "":
+        if apartment_search_input != "" or apartment_search_input != None:
             cleaned_input = apartment_search_input.strip().lower()
             cleaned_apartment_names = apartment_data_df[LOCATION].str.strip().str.lower().unique()
             if cleaned_input in cleaned_apartment_names:
@@ -131,8 +135,8 @@ with searchAptTab:
                 st.experimental_set_query_params(apartment=original_case_apartment)
             else:
                 st.write("Apartment not found")
-        else:
-            st.warning("Please enter a value to search")
+    
+    apartment_search_input = ""
 
     if apartment_param:
     # Display apartment details below the search if there's a parameter in the URL or the recent search
@@ -175,7 +179,7 @@ with searchAptTab:
             apt = amenity_data_df.loc[amenity_data_df['Apartment'] == apartment_param]
             for col, val in apt.items():
                 if val.any() and col != 'Apartment':
-                    st.text(col.replace('_', ' '))
+                    st.write(col.replace('_', ' '))
             
         with col2:
             if pot_graph:
@@ -190,9 +194,10 @@ with searchAptTab:
             string = [j for i, j in val][0]
             for line in string[1:-1].split(", ")[:5]:
                 wrapped_text = textwrap.fill(line, width=80)
-                st.text(wrapped_text)
+                st.write(wrapped_text)
                 st.divider()
             st.caption('Powered by Google')
+    apartment_param = ''
 
         st.subheader("Key Amenities")
         amenity_cols = amenity_data_df.columns[1:].to_list()
@@ -300,3 +305,4 @@ with findAptTab:
                         st.markdown(f"###### {item['label']}")
                         st.markdown(f"<div style='font-size: 1em;'>{item['value']}</div>", unsafe_allow_html=True)
                         st.markdown("---")  # Optional: Add a divider line
+ 
