@@ -71,17 +71,18 @@ with findAptTab:
     apartments_filtered_bedrooms_bathrooms = apartments_filtered_bedrooms[apartments_filtered_bedrooms[BATHROOMS] == selected_bathrooms]
 
     # Filter for Price
-    price = st.slider("Price Range ($)", 500, 2000, (800, 1300))
-    data = data[(data[RENT].astype(int) >= price[0]) & 
-                (data[RENT].astype(int) <= price[1])]
+    price_range = st.slider("Price Range ($)", 200, 2000, (200, 2000))
+    apartments_filtered_all = apartments_filtered_bedrooms_bathrooms[(apartments_filtered_bedrooms_bathrooms[RENT].astype(int) >= price_range[0]) & (apartments_filtered_bedrooms_bathrooms[RENT].astype(int) <= price_range[1])]
+    
+    if len(apartments_filtered_all) == 0:
+        st.write("Unfortunately, we do not have data for the requested filters.")
+    else:
+        selected_college = st.selectbox("What school are you in?", unique_colleges)
 
-
-    distance_data = pd.read_csv('datasets/distance_data.csv', header=None, names=['Apartment', 'School', 'Distance'])
-
-    def get_distance(row):
-        mask = (distance_data['Apartment'] == row[LOCATION]) & (distance_data['School'] == row[SCHOOL])
-        matching_distance = distance_data[mask]['Distance'].values
-        return matching_distance[0] if len(matching_distance) > 0 else None
+        def calculate_distance(row):
+            mask = (distance_data_df['Apartment'] == row[LOCATION]) & (distance_data_df['School'] == selected_college)
+            matching_distance = distance_data_df[mask]['Distance'].values
+            return matching_distance[0] if len(matching_distance) > 0 else None
 
         apartment_distance_data = apartments_filtered_all.copy()
         apartment_distance_data['DISTANCE'] = apartment_distance_data.apply(calculate_distance, axis=1)
