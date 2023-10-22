@@ -11,6 +11,7 @@ apartment_data_rows = bigquery_client.list_rows(TABLE_ID)
 apartment_data_df = apartment_data_rows.to_dataframe()
 apartment_data_df[SCHOOL] = apartment_data_df[SCHOOL].str.split(", ")
 apartment_data_df = apartment_data_df.explode(SCHOOL).reset_index(drop=True)
+apartment_data_df[LOCATION] = apartment_data_df[LOCATION].str.strip()
 
 # Load college data from BigQuery
 college_data_rows = bigquery_client.list_rows(CLG_ADD_TABLE_ID)
