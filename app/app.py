@@ -24,12 +24,13 @@ def load_college_data():
     college_data_df = college_data_rows.to_dataframe()
     return college_data_df
 
-@st.cache_data
-def load_distance_data():
-    distance_data_rows = bigquery_client.list_rows(DISTANCE_TABLE_ID)
-    distance_data_df = distance_data_rows.to_dataframe()
-    distance_data_df.columns = ['Apartment', 'School', 'Distance']
-    return distance_data_df
+# Load distance data from BigQuery
+distance_data_rows = bigquery_client.list_rows(DISTANCE_TABLE_ID)
+distance_data_df = distance_data_rows.to_dataframe()
+distance_data_df.columns = ['Apartment', 'School', 'Distance']
+
+amenity_data_rows=bigquery_client.list_rows(AMENITY_TABLE_ID)
+amenity_data_df = amenity_data_rows.to_dataframe()
 
 # Load data from BigQuery
 apartment_data_df = load_apartment_data()
@@ -95,20 +96,27 @@ with searchAptTab:
                 st.subheader("Monthly Rates Over Time for a {} x {} at {}".format(bedrooms_param, bathrooms_param, apartment_param))
                 st.pyplot(pot_graph)
 
-        
+        st.subheader("Key Amenities")
+        amenity_cols = amenity_data_df.columns[1:].to_list()
+        apt = amenity_data_df.loc[apartment_data_df[LOCATION] == apartment_param]
+        for col, val in apt.items():
+            if val.any() and col != 'Apartment':
+                st.text(col.replace('_', ' '))
+
+
 with findAptTab:
 
     st.title("Find Apartments")
     unique_colleges = college_data_df["College"].unique()
 
     # Filter for Bedrooms
-    selected_bedrooms = st.selectbox("How many bedrooms would you prefer?", sorted(apartment_data_df[BEDROOMS].unique()))
+    selected_bedrooms = st.selectbox("How many bedrooms would you prefer?", sorted(apartment_data_df[BEDROOMS].unique()), 3)
 
     # Filter for Bathrooms
-    selected_bathrooms = st.selectbox("How many bathrooms would you prefer?", sorted(apartment_data_df[BATHROOMS].unique()))
+    selected_bathrooms = st.selectbox("How many bathrooms would you prefer?", sorted(apartment_data_df[BATHROOMS].unique()), 3)
 
     # Filter for Price
-    price_range = st.slider("Price Range ($)", 0, 2500, (200, 2000))
+    price_range = st.slider("Price Range ($)", 100, 2000, (200, 1900))
     apartments_filtered_all = apartment_data_df[
         (apartment_data_df[RENT].astype(int) >= price_range[0]) & 
         (apartment_data_df[RENT].astype(int) <= price_range[1]) &
