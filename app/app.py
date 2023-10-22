@@ -90,14 +90,12 @@ for i,row in apt_df.iterrows():
     marker_data.append({"name": row['Apartment'], "lat": lats[i], "lon": lons[i]})
     
 marker_layer = pdk.Layer(
-    "IconLayer",
+    "ScatterplotLayer",
     data=marker_data,
     get_icon="icon_data",
     get_position=["lon", "lat"],
-    get_size=25,  # Adjust the marker size as needed
+    get_radius=25,  # Adjust the marker size as needed
     get_fill_color=[191, 87, 0],  # RGB color for markers (green in this example)
-    pickable=True,
-    size_scale=15
 )
 
 view_state = pdk.ViewState(
