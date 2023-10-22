@@ -1,6 +1,7 @@
 # app.py
 import streamlit as st
 import pandas as pd
+import textwrap
 
 from config import *
 from utils import get_param
@@ -31,12 +32,24 @@ def load_distance_data():
     distance_data_df.columns = ['Apartment', 'School', 'Distance']
     return distance_data_df
 
+@st.cache_data
+def load_amenity_data():
+    amenity_data_rows = bigquery_client.list_rows(AMENITY_TABLE_ID)
+    amenity_data_df = amenity_data_rows.to_dataframe()
+    return amenity_data_df
+
+@st.cache_data
+def load_reviews_data():
+    reviews_data_rows = bigquery_client.list_rows(REVIEWS_TABLE_ID)
+    reviews_data_df = reviews_data_rows.to_dataframe()
+    return reviews_data_df
+
 # Load data from BigQuery
 apartment_data_df = load_apartment_data()
 college_data_df = load_college_data()
 distance_data_df = load_distance_data()
-amenity_data_rows = bigquery_client.list_rows(AMENITY_TABLE_ID)
-amenity_data_df = amenity_data_rows.to_dataframe()
+amenity_data_df = load_amenity_data()
+reviews_data_df = load_reviews_data()
 
 # Get parameters from URL
 apartment_param = get_param("apartment")
@@ -90,18 +103,37 @@ with searchAptTab:
         with col1:
             st.subheader("Previous Rates")
             st.write(specific_apartment_data_display.to_html(escape=False, index=False), unsafe_allow_html=True)
+
+            st.divider()
+            # Amenities section
+            st.subheader("Key Amenities")
+            amenity_cols = amenity_data_df.columns[1:].to_list()
+            apt = amenity_data_df.loc[amenity_data_df['Apartment'] == apartment_param]
+            for col, val in apt.items():
+                if val.any() and col != 'Apartment':
+                    st.text(col.replace('_', ' '))
             
         with col2:
             if pot_graph:
                 st.subheader("Monthly Rates Over Time for a {} x {} at {}".format(bedrooms_param, bathrooms_param, apartment_param))
                 st.pyplot(pot_graph)
 
-        st.subheader("Key Amenities")
-        amenity_cols = amenity_data_df.columns[1:].to_list()
-        apt = amenity_data_df.loc[apartment_data_df[LOCATION] == apartment_param]
-        for col, val in apt.items():
-            if val.any() and col != 'Apartment':
-                st.text(col.replace('_', ' '))
+            # Reviews section
+            st.subheader('Reviews')
+            apt = reviews_data_df.loc[reviews_data_df['Apartment'] == apartment_param]
+            # st.text(apt['reviews'])
+            val = apt['reviews'].items()
+            string = [j for i, j in val][0]
+            for line in string[1:-1].split(", ")[:5]:
+                wrapped_text = textwrap.fill(line, width=80)
+                st.text(wrapped_text)
+                st.divider()
+            st.caption('Powered by Google')
+
+
+
+
+
 
         
 with findAptTab:
