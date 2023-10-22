@@ -3,7 +3,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 
-from config import PROJECT_ID, APT_TABLE_ID, bigquery_client
+from config import TABLE_ID, bigquery_client
 
 
 def price_over_time(name, beds, baths):
@@ -13,7 +13,7 @@ def price_over_time(name, beds, baths):
     except:
         return
     # GCP Big Query Client, Pull Data
-    apt_rows = bigquery_client.list_rows(APT_TABLE_ID)
+    apt_rows = bigquery_client.list_rows(TABLE_ID)
     apt_df = apt_rows.to_dataframe()
 
     # Variables for filtering
@@ -45,7 +45,7 @@ def price_over_time(name, beds, baths):
     plt.figure(figsize=(12,7))
 
     # Plot data
-    sns.lineplot(x=dates, y=prices, marker='o', color='royalblue', linewidth=2.5, markersize=10)
+    sns.lineplot(x=dates, y=prices, marker='o', color='#cc5500', linewidth=2.5, markersize=10)
 
     # Titles and labels
     plt.xlabel("Lease Sign Date", fontsize=15, labelpad=15)

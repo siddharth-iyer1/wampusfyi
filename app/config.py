@@ -3,7 +3,6 @@ from google.cloud import bigquery
 
 PROJECT_ID = "wampusfyi-402717"
 TABLE_ID = "wampusfyi-402717.FormResponses.RentPrices"
-APT_TABLE_ID = "wampusfyi-402717.FormResponses.RentPrices"
 SCHOOL = "What_school_of_UT_are_you_in"
 BEDROOMS = "How_many_bedrooms_in_your_apt"
 BATHROOMS = "How_many_bathrooms_in_your_apt"
@@ -17,6 +16,8 @@ BASE_URL = "http://localhost:8501"
 CLG_ADD_TABLE_ID = "wampusfyi-402717.DistanceData.ClgAddresses"
 DISTANCE_TABLE_ID = "wampusfyi-402717.DistanceData.Distances"
 AMENITY_TABLE_ID = "wampusfyi-402717.ApartmentDetails.AptAmenities"
+APT_TABLE_ID = 'wampusfyi-402717.DistanceData.AptAddresses'
+
 
 
 rename_dict = {

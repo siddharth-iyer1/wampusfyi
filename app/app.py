@@ -5,6 +5,12 @@ import pandas as pd
 from config import *
 from utils import get_param
 from visualizations import price_over_time
+import pydeck as pdk
+from googlemaps import Client
+import json
+
+api_key = "AIzaSyDoPCPo-aK28JSPXhMRHBdzL8jCpjrpvfc"
+gm_client = Client(api_key)
 
 st.set_page_config(layout="wide")
 
@@ -41,10 +47,50 @@ apartment_param = get_param("apartment")
 bedrooms_param = get_param("bedrooms")
 bathrooms_param = get_param("bathrooms")
 
+apt_rows = bigquery_client.list_rows(APT_TABLE_ID)
+apt_df = apt_rows.to_dataframe()
+geocode_result = []
+for i in apt_df["Address"]:
+    geocode_result.append(gm_client.geocode(i))
+apt_df['coords'] = geocode_result
+marker_data = []
+lats = []
+lons = []
+
+for i in range(len(apt_df)):
+    lats.append(apt_df['coords'][i][0]['geometry']['location']['lat'])
+    lons.append(apt_df['coords'][i][0]['geometry']['location']['lng'])
+
+for i,row in apt_df.iterrows():
+    marker_data.append({"name": row['Apartment'], "lat": lats[i], "lon": lons[i]})
+
+with open('marker_data.json', 'w') as f:
+    # Step 4: Use json.dump to write the list to the file
+    # Step 5: Specify indent for pretty printing (optional)
+    json.dump(marker_data, f, indent=4)
+marker_layer = pdk.Layer(
+    "Apartments",
+    data=marker_data,
+    get_position=["lon", "lat"],
+    get_radius=200,  # Adjust the marker size as needed
+    get_fill_color=[0, 255, 0],  # RGB color for markers (green in this example)
+)
+
+view_state = pdk.ViewState(
+    latitude=30.2672,  # Center latitude
+    longitude=-97.7431,  # Center longitude
+    zoom=13,  # Adjust the zoom level as needed
+)
+
+r = pdk.Deck(
+    layers=[marker_layer],
+    initial_view_state=view_state,
+)
+st.pydeck_chart(r)
 
 
 # Create tabs
-searchAptTab, findAptTab = st.tabs(PAGES)
+searchAptTab, findAptTab = st.tabs(["Search Apartment", "Find Apartment"])
 
 with searchAptTab:
         
@@ -67,7 +113,8 @@ with searchAptTab:
 
     if apartment_param:
     # Display apartment details below the search if there's a parameter in the URL or the recent search
-        st.title(f"Details for {apartment_param}")
+        st.markdown(f"<h1>Details for <spa style='color: #cc5500'>{apartment_param}</span></h1>", unsafe_allow_html=True)
+
         
         specific_apartment_data = apartment_data_df[apartment_data_df[LOCATION] == apartment_param]
         specific_apartment_data_display = specific_apartment_data[[LOCATION, BEDROOMS, BATHROOMS, SATISFACTION, RENT, LEASESIGN]]
@@ -131,7 +178,7 @@ with findAptTab:
         final_apartment_data = apartment_distance_data[[LOCATION, BEDROOMS, BATHROOMS, 'Distance to {}'.format(selected_college), SATISFACTION, RENT]]
         final_apartment_data.rename(columns=rename_dict, inplace=True)
         final_apartment_data["Apartment"] = final_apartment_data.apply(
-            lambda row: f"<a target=\"_self\" href='{BASE_URL}?apartment={row['Location'].replace(' ', '%20')}&bedrooms={row['Bedrooms']}&bathrooms={row['Bathrooms']}'>{row['Location']}</a>",
+            lambda row: f"<a style='color: #cc5500;' target=\"_self\" href='{BASE_URL}?apartment={row['Location'].replace(' ', '%20')}&bedrooms={row['Bedrooms']}&bathrooms={row['Bathrooms']}'>{row['Location']}</a>",
             axis=1, result_type='reduce'
         )
         # final_apartment_data = final_apartment_data.drop("Location", axis=1)
@@ -178,8 +225,6 @@ with findAptTab:
                     {"label": f"Closest Distance to {selected_college}", "value": f"{closest_distance['Location']} ({closest_distance['Distance to {}'.format(selected_college)]} mi)"}
                 ]
                 
-                
-
                 for item in summary_items:
                     with st.container():
                         st.markdown(f"###### {item['label']}")
