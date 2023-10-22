@@ -35,8 +35,6 @@ def load_distance_data():
 apartment_data_df = load_apartment_data()
 college_data_df = load_college_data()
 distance_data_df = load_distance_data()
-amenity_data_rows = bigquery_client.list_rows(AMENITY_TABLE_ID)
-amenity_data_df = amenity_data_rows.to_dataframe()
 
 # Get parameters from URL
 apartment_param = get_param("apartment")
@@ -95,13 +93,6 @@ with searchAptTab:
             if pot_graph:
                 st.subheader("Monthly Rates Over Time for a {} x {} at {}".format(bedrooms_param, bathrooms_param, apartment_param))
                 st.pyplot(pot_graph)
-
-        st.subheader("Key Amenities")
-        amenity_cols = amenity_data_df.columns[1:].to_list()
-        apt = amenity_data_df.loc[apartment_data_df[LOCATION] == apartment_param]
-        for col, val in apt.items():
-            if val.any() and col != 'Apartment':
-                st.text(col.replace('_', ' '))
 
         
 with findAptTab:
