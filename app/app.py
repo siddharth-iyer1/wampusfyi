@@ -45,7 +45,7 @@ with findApt:
     st.title("Find Apartments")
 
     # Filter for School of UT
-    schools = st.selectbox("What school are you in?", sorted(data[SCHOOL].unique()))
+    schools = st.selectbox("What school are you in?", data[SCHOOL].unique())
     data = data[data[SCHOOL] == schools]
 
     # Filter for Bedrooms
@@ -58,7 +58,7 @@ with findApt:
 
     # Filter for Price
     price = st.slider("Price Range ($)", 500, 2000, (800, 1300))
-    data = data[(data[RENT].astype(int) >= price[0]) & 
+    data = data[(data[RENT].astype(int) >= price[0]) &
                 (data[RENT].astype(int) <= price[1])]
 
 
