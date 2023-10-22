@@ -163,12 +163,9 @@ with findAptTab:
             col1, col2 = st.columns([2, 1])
 
             with col1:
-                lastfinalad = final_apartment_data.drop("Location", axis=1)
-                cols = ["Apartment"] + [col for col in lastfinalad.columns if col != "Apartment"]
-                lastfinalad = lastfinalad[cols]
                 
                 st.subheader("Previous Rates")
-                st.write(lastfinalad.to_html(escape=False, index=False), unsafe_allow_html=True)
+                st.write(grouped_apartment_data.to_html(escape=False, index=False), unsafe_allow_html=True)
                 
             with col2:
                 st.subheader("Summary")
