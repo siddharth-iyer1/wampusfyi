@@ -3,7 +3,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 
-from config import TABLE_ID, bigquery_client
+from app.config import TABLE_ID, bigquery_client
 
 
 def price_over_time(name, beds, baths):
