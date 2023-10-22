@@ -45,7 +45,7 @@ for apt in diff:
     if data.get('candidates'):
         address = data['candidates'][0].get('formatted_address')
         # Write to apartment addresses csv
-        with open('apt_addresses.csv', 'a') as f:
+        with open('apartment_data/apt_addresses.csv', 'a') as f:
             writer = csv.writer(f)
             writer.writerow([apt, address])
             print('updated!')
@@ -54,7 +54,7 @@ for apt in diff:
 
 dataset_ref = bigquery_client.dataset("DistanceData")
 table_ref = dataset_ref.table("AptAddresses")
-csv_file_path = "apt_addresses.csv"
+csv_file_path = "apartment_data/apt_addresses.csv"
 
 # Define the job configuration
 job_config = bigquery.LoadJobConfig()
@@ -72,6 +72,3 @@ with open(csv_file_path, "rb") as csv_file:
         csv_file, table_ref, job_config=job_config
     )
     print('woah!!')
-
-if os.path.exists("apt_addresses.csv"):
-    os.remove("apt_addresses.csv")

@@ -56,13 +56,13 @@ for i in range(len(apt_df)):
 
         distance_df = pd.concat([distance_df, new_row], ignore_index=True)
 
-distance_df.to_csv('distance_data.csv', index=False)
+distance_df.to_csv('apartment_data/distance_data.csv', index=False)
 
 # Now upload the csv to BigQuery
 
 dataset_ref = bigquery_client.dataset("DistanceData")
 table_ref = dataset_ref.table("Distances")
-csv_file_path = "distance_data.csv"
+csv_file_path = "apartment_data/distance_data.csv"
 
 # Define the job configuration
 job_config = bigquery.LoadJobConfig()
@@ -80,6 +80,3 @@ with open(csv_file_path, "rb") as csv_file:
     job = bigquery_client.load_table_from_file(
         csv_file, table_ref, job_config=job_config
     )
-
-if os.path.exists("distance_data.csv"):
-    os.remove("distance_data.csv")
