@@ -11,6 +11,34 @@ from googlemaps import Client
 import json
 import textwrap
 
+import google.auth
+from google.oauth2.credentials import Credentials
+from google_auth_oauthlib.flow import InstalledAppFlow
+
+CLIENT_ID = '1002948516785-k9qpkm3o05tfht7mrl6evaoi53l27rmg.apps.googleusercontent.com'
+CLIENT_SECRET = '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'
+
+# Start the OAuth2.0 flow
+flow = InstalledAppFlow.from_client_config(
+    {
+        "installed": {
+            "client_id": CLIENT_ID,
+            "client_secret": CLIENT_SECRET,
+            "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+            "token_uri": "https://accounts.google.com/o/oauth2/token",
+            "redirect_uris": ["urn:ietf:wg:oauth:2.0:oob"],
+            "scopes": ["https://www.googleapis.com/auth/cloud-platform"]
+        }
+    },
+    ["https://www.googleapis.com/auth/cloud-platform"]
+)
+
+# This will prompt you to authorize the app in your web browser and provide an authorization code.
+credentials = flow.run_console()
+
+# The credentials object now contains the token you can use to authenticate with Google Cloud services.
+print(credentials.token)
+
 api_key = "AIzaSyDoPCPo-aK28JSPXhMRHBdzL8jCpjrpvfc"
 gm_client = Client(api_key)
 
