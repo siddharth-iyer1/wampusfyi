@@ -188,13 +188,6 @@ with searchAptTab:
             st.caption('Powered by Google')
     apartment_param = ''
 
-    st.subheader("Key Amenities")
-    amenity_cols = amenity_data_df.columns[1:].to_list()
-    apt = amenity_data_df.loc[apartment_data_df[LOCATION] == apartment_param]
-    for col, val in apt.items():
-        if val.any() and col != 'Apartment':
-            st.text(col.replace('_', ' '))
-
         
 with findAptTab:
 
