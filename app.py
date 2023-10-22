@@ -14,24 +14,21 @@ import textwrap
 import google.auth
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
+import asyncio
+from google.oauth2 import GoogleOAuth2
 
 CLIENT_ID = '1002948516785-k9qpkm3o05tfht7mrl6evaoi53l27rmg.apps.googleusercontent.com'
 CLIENT_SECRET = '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'
+REDIRECT_URI = 'https://wampusfyi.streamlit.app'
+client = GoogleOAuth2(CLIENT_ID, CLIENT_SECRET)
 
-# Start the OAuth2.0 flow
-flow = InstalledAppFlow.from_client_config(
-    {
-        "installed": {
-            "client_id": CLIENT_ID,
-            "client_secret": CLIENT_SECRET,
-            "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-            "token_uri": "https://accounts.google.com/o/oauth2/token",
-            "redirect_uris": ["urn:ietf:wg:oauth:2.0:oob"],
-            "scopes": ["https://www.googleapis.com/auth/cloud-platform"]
-        }
-    },
-    ["https://www.googleapis.com/auth/cloud-platform"]
-)
+async def get_authorization_url(client,REDIRECT_URI):
+    authorization_url = await client.get_authorization_url(REDIRECT_URI, scope=["profile", "email"])
+    return authorization_url
+
+async def get_access_token(client, REDIRECT_URI, code):
+    token = await client.get_access_token(code, REDIRECT_URI)
+    return token
 
 api_key = "AIzaSyDoPCPo-aK28JSPXhMRHBdzL8jCpjrpvfc"
 gm_client = Client(api_key)
