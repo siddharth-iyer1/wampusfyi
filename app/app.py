@@ -143,6 +143,7 @@ with findAptTab:
             "Satisfaction": lambda x: round(x.mean(), 2),
             "Rent": lambda x: round(x.mean(), 2),  # Calculate the average RENT
             'Distance to {}'.format(selected_college): "first",  # Assuming DISTANCE is the same for all rows of the same APARTMENT
+            "Location": "first"
         })
         
         grouped_apartment_data[f'Distance to {selected_college}'] = grouped_apartment_data[f'Distance to {selected_college}'].apply(lambda x: f"{x} mi." if pd.notnull(x) else "N/A")
@@ -153,22 +154,34 @@ with findAptTab:
         ""
         ""
         
-        if len(final_apartment_data) > 0:
+        if len(grouped_apartment_data) > 0:
             # Extract summary information
-            highest_satisfaction = final_apartment_data.loc[final_apartment_data["Satisfaction"].idxmax()]
-            lowest_rent = final_apartment_data.loc[final_apartment_data["Rent"].idxmin()]
-            closest_distance = final_apartment_data.loc[final_apartment_data['Distance to {}'.format(selected_college)].idxmin()]
-            
+            highest_satisfaction = grouped_apartment_data.loc[grouped_apartment_data["Satisfaction"].idxmax()]
+            lowest_rent = grouped_apartment_data.loc[grouped_apartment_data["Rent"].idxmin()]
+            closest_distance = grouped_apartment_data.loc[grouped_apartment_data['Distance to {}'.format(selected_college)].idxmin()]
             # Create columns for layout
             col1, col2 = st.columns([2, 1])
 
             with col1:
                 
+                tabledat = grouped_apartment_data
+                tabledat = tabledat.drop("Location", axis=1)
+                tabledat = tabledat.sort_values(by='Rent')
                 st.subheader("Previous Rates")
-                st.write(grouped_apartment_data.to_html(escape=False, index=False), unsafe_allow_html=True)
+                st.write(tabledat.to_html(escape=False, index=False), unsafe_allow_html=True)
                 
             with col2:
                 st.subheader("Summary")
-                st.markdown(f"**Highest Average Satisfaction:** {highest_satisfaction['Location']} ({highest_satisfaction['Satisfaction']} satisfaction)")
-                st.markdown(f"**Lowest Average Rent:** {lowest_rent['Location']} (${lowest_rent['Rent']} per month)")
-                st.markdown(f"**Closest Distance to {selected_college}:** {closest_distance['Location']} ({closest_distance['Distance to {}'.format(selected_college)]} mi)")
+                summary_items = [
+                    {"label": "Highest Average Satisfaction", "value": f"{highest_satisfaction['Location']} ({highest_satisfaction['Satisfaction']} satisfaction)"},
+                    {"label": "Lowest Average Rent", "value": f"{lowest_rent['Location']} (${lowest_rent['Rent']} per month)"},
+                    {"label": f"Closest Distance to {selected_college}", "value": f"{closest_distance['Location']} ({closest_distance['Distance to {}'.format(selected_college)]} mi)"}
+                ]
+                
+                
+
+                for item in summary_items:
+                    with st.container():
+                        st.markdown(f"###### {item['label']}")
+                        st.markdown(f"<div style='font-size: 1em;'>{item['value']}</div>", unsafe_allow_html=True)
+                        st.markdown("---")  # Optional: Add a divider line
