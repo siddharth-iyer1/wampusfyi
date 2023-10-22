@@ -8,6 +8,7 @@ from visualizations import price_over_time
 import pydeck as pdk
 from googlemaps import Client
 import json
+import textwrap
 
 api_key = "AIzaSyDoPCPo-aK28JSPXhMRHBdzL8jCpjrpvfc"
 gm_client = Client(api_key)
@@ -37,10 +38,24 @@ def load_distance_data():
     distance_data_df.columns = ['Apartment', 'School', 'Distance']
     return distance_data_df
 
+@st.cache_data
+def load_amenity_data():
+    amenity_data_rows = bigquery_client.list_rows(AMENITY_TABLE_ID)
+    amenity_data_df = amenity_data_rows.to_dataframe()
+    return amenity_data_df
+
+@st.cache_data
+def load_reviews_data():
+    reviews_data_rows = bigquery_client.list_rows(REVIEWS_TABLE_ID)
+    reviews_data_df = reviews_data_rows.to_dataframe()
+    return reviews_data_df
+
 # Load data from BigQuery
 apartment_data_df = load_apartment_data()
 college_data_df = load_college_data()
 distance_data_df = load_distance_data()
+amenity_data_df = load_amenity_data()
+reviews_data_df = load_reviews_data()
 
 # Get parameters from URL
 apartment_param = get_param("apartment")
@@ -72,6 +87,7 @@ marker_layer = pdk.Layer(
     get_position=["lon", "lat"],
     get_radius=25,  # Adjust the marker size as needed
     get_fill_color=[191, 87, 0],  # RGB color for markers (green in this example)
+    extruded=True,
 )
 
 view_state = pdk.ViewState(
@@ -83,6 +99,12 @@ view_state = pdk.ViewState(
 r = pdk.Deck(
     layers=[marker_layer],
     initial_view_state=view_state,
+    tooltip={
+        'html': '<b>Elevation Value:</b> {elevationValue}',
+        'style': {
+            'color': 'white'
+        }
+    }
 )
 st.pydeck_chart(r)
 
@@ -103,11 +125,9 @@ with searchAptTab:
             cleaned_input = apartment_search_input.strip().lower()
             cleaned_apartment_names = apartment_data_df[LOCATION].str.strip().str.lower().unique()
             if cleaned_input in cleaned_apartment_names:
-                # Convert back to original case to use as parameter
                 original_case_apartment = apartment_data_df[apartment_data_df[LOCATION].str.strip().str.lower() == cleaned_input][LOCATION].values[0]
                 apartment_param = original_case_apartment
                 st.experimental_set_query_params(apartment=original_case_apartment)
-                st.experimental_rerun()
             else:
                 st.write("Apartment not found")
         else:
@@ -138,10 +158,31 @@ with searchAptTab:
             st.subheader("Previous Rates")
             st.write(specific_apartment_data_display.to_html(escape=False, index=False), unsafe_allow_html=True)
             
+            st.divider()
+            # Amenities section
+            st.subheader("Key Amenities")
+            amenity_cols = amenity_data_df.columns[1:].to_list()
+            apt = amenity_data_df.loc[amenity_data_df['Apartment'] == apartment_param]
+            for col, val in apt.items():
+                if val.any() and col != 'Apartment':
+                    st.text(col.replace('_', ' '))
+            
         with col2:
             if pot_graph:
                 st.subheader("Monthly Rates Over Time for a {} x {} at {}".format(bedrooms_param, bathrooms_param, apartment_param))
                 st.pyplot(pot_graph)
+                
+            # Reviews section
+            st.subheader('Reviews')
+            apt = reviews_data_df.loc[reviews_data_df['Apartment'] == apartment_param]
+            # st.text(apt['reviews'])
+            val = apt['reviews'].items()
+            string = [j for i, j in val][0]
+            for line in string[1:-1].split(", ")[:5]:
+                wrapped_text = textwrap.fill(line, width=80)
+                st.text(wrapped_text)
+                st.divider()
+            st.caption('Powered by Google')
 
         
 with findAptTab:
@@ -204,8 +245,6 @@ with findAptTab:
             "Location": "first"
         })
         
-        grouped_apartment_data[f'Distance to {selected_college}'] = grouped_apartment_data[f'Distance to {selected_college}'].apply(lambda x: f"{x} mi." if pd.notnull(x) else "N/A")
-
         cols = ["Apartment"] + [col for col in grouped_apartment_data.columns if col != "Apartment"]
         grouped_apartment_data = grouped_apartment_data[cols]
         
@@ -217,6 +256,8 @@ with findAptTab:
             highest_satisfaction = grouped_apartment_data.loc[grouped_apartment_data["Satisfaction"].idxmax()]
             lowest_rent = grouped_apartment_data.loc[grouped_apartment_data["Rent"].idxmin()]
             closest_distance = grouped_apartment_data.loc[grouped_apartment_data['Distance to {}'.format(selected_college)].idxmin()]
+            grouped_apartment_data[f'Distance to {selected_college}'] = grouped_apartment_data[f'Distance to {selected_college}'].apply(lambda x: f"{x} mi." if pd.notnull(x) else "N/A")
+
             # Create columns for layout
             col1, col2 = st.columns([2, 1])
 
@@ -226,6 +267,7 @@ with findAptTab:
                 tabledat = tabledat.drop("Location", axis=1)
                 tabledat = tabledat.sort_values(by='Rent')
                 st.subheader("Previous Rates")
+                
                 st.write(tabledat.to_html(escape=False, index=False), unsafe_allow_html=True)
                 
             with col2:

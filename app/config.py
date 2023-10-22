@@ -17,6 +17,7 @@ CLG_ADD_TABLE_ID = "wampusfyi-402717.DistanceData.ClgAddresses"
 DISTANCE_TABLE_ID = "wampusfyi-402717.DistanceData.Distances"
 AMENITY_TABLE_ID = "wampusfyi-402717.ApartmentDetails.AptAmenities"
 APT_TABLE_ID = 'wampusfyi-402717.DistanceData.AptAddresses'
+REVIEWS_TABLE_ID = "wampusfyi-402717.ApartmentDetails.Reviews"
 
 
 
