@@ -41,10 +41,13 @@ with searchAptTab:
     search_button_clicked = st.button("Search")
 
     if search_button_clicked:
-        if apartment_search_input in apartment_data_df[LOCATION].unique():
-            apartment_param = apartment_search_input  # set apartment_param to the newly searched apartment
-            st.experimental_set_query_params(apartment=apartment_search_input)  # this line can be removed if not necessary
-            st.experimental_rerun()
+        cleaned_input = apartment_search_input.strip().lower()
+        cleaned_apartment_names = apartment_data_df[LOCATION].str.strip().str.lower().unique()
+        if cleaned_input in cleaned_apartment_names:
+            # Convert back to original case to use as parameter
+            original_case_apartment = apartment_data_df[apartment_data_df[LOCATION].str.strip().str.lower() == cleaned_input][LOCATION].values[0]
+            apartment_param = original_case_apartment
+            st.experimental_set_query_params(apartment=original_case_apartment)
             st.experimental_rerun()
         else:
             st.write("Apartment not found")
