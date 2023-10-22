@@ -23,6 +23,10 @@ distance_data_rows = bigquery_client.list_rows(DISTANCE_TABLE_ID)
 distance_data_df = distance_data_rows.to_dataframe()
 distance_data_df.columns = ['Apartment', 'School', 'Distance']
 
+# Load amenity data from BigQuery
+amenity_data_rows = bigquery_client.list_rows(AMENITY_TABLE_ID)
+amenity_data_df = amenity_data_rows.to_dataframe()
+
 print(distance_data_df["Apartment"].unique())
 
 # Get parameters from URL
@@ -72,7 +76,14 @@ with searchAptTab:
         if pot_graph:
             st.pyplot(pot_graph)
 
-        
+        st.subheader("Key Amenities")
+        amenity_cols = amenity_data_df.columns[1:].to_list()
+        apt = amenity_data_df.loc[apartment_data_df[LOCATION] == apartment_param]
+        for col, val in apt.items():
+            if val.any() and col != 'Apartment':
+                st.text(col.replace('_', ' '))
+
+
 with findAptTab:
 
     st.title("Find Apartments")
