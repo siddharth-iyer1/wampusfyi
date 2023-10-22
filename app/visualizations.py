@@ -48,7 +48,6 @@ def price_over_time(name, beds, baths):
     sns.lineplot(x=dates, y=prices, marker='o', color='royalblue', linewidth=2.5, markersize=10)
 
     # Titles and labels
-    plt.title("Monthly Rate Trend Over Lease Sign Dates", fontsize=18, pad=20)
     plt.xlabel("Lease Sign Date", fontsize=15, labelpad=15)
     plt.ylabel("Monthly Rate", fontsize=15, labelpad=15)
 

@@ -66,21 +66,33 @@ with searchAptTab:
             st.write("Apartment not found")
 
     if apartment_param:
-        # Display apartment details below the search if there's a parameter in the URL or the recent search
+    # Display apartment details below the search if there's a parameter in the URL or the recent search
         st.title(f"Details for {apartment_param}")
         
         specific_apartment_data = apartment_data_df[apartment_data_df[LOCATION] == apartment_param]
         specific_apartment_data_display = specific_apartment_data[[LOCATION, BEDROOMS, BATHROOMS, SATISFACTION, RENT, LEASESIGN]]
+
+        # Ensure that LEASESIGN is in datetime format
+        specific_apartment_data_display[LEASESIGN] = pd.to_datetime(specific_apartment_data_display[LEASESIGN], errors='coerce')
+
+        # Sort the dataframe by LEASESIGN in descending order
+        specific_apartment_data_display = specific_apartment_data_display.sort_values(by=LEASESIGN, ascending=False)
+
         specific_apartment_data_display = specific_apartment_data_display.rename(columns=rename_dict)
-        st.subheader("Previous Rates")
         
-        st.write(specific_apartment_data_display.to_html(escape=False, index=False), unsafe_allow_html=True)
-        ""
-        ""
-        ""
         pot_graph = price_over_time(apartment_param, bedrooms_param, bathrooms_param)
-        if pot_graph:
-            st.pyplot(pot_graph)
+
+        # Create two columns for the plot and the table
+        col1, col2 = st.columns(2)
+
+        with col1:
+            st.subheader("Previous Rates")
+            st.write(specific_apartment_data_display.to_html(escape=False, index=False), unsafe_allow_html=True)
+            
+        with col2:
+            if pot_graph:
+                st.subheader("Monthly Rates Over Time for a {} x {} at {}".format(bedrooms_param, bathrooms_param, apartment_param))
+                st.pyplot(pot_graph)
 
         
 with findAptTab:
