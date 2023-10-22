@@ -24,6 +24,13 @@ def load_college_data():
     college_data_df = college_data_rows.to_dataframe()
     return college_data_df
 
+@st.cache_data
+def load_distance_data():
+    distance_data_rows = bigquery_client.list_rows(DISTANCE_TABLE_ID)
+    distance_data_df = distance_data_rows.to_dataframe()
+    distance_data_df.columns = ['Apartment', 'School', 'Distance']
+    return distance_data_df
+
 # Load distance data from BigQuery
 distance_data_rows = bigquery_client.list_rows(DISTANCE_TABLE_ID)
 distance_data_df = distance_data_rows.to_dataframe()
