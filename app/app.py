@@ -30,6 +30,9 @@ apartment_param = get_param("apartment")
 bedrooms_param = get_param("bedrooms")
 bathrooms_param = get_param("bathrooms")
 
+st.set_page_config(layout="wide")
+
+
 # Create tabs
 searchAptTab, findAptTab = st.tabs(PAGES)
 
@@ -77,15 +80,18 @@ with findAptTab:
 
     # Filter for Bedrooms
     selected_bedrooms = st.selectbox("How many bedrooms would you prefer?", sorted(apartment_data_df[BEDROOMS].unique()))
-    apartments_filtered_bedrooms = apartment_data_df[apartment_data_df[BEDROOMS] == selected_bedrooms]
 
     # Filter for Bathrooms
-    selected_bathrooms = st.selectbox("How many bathrooms would you prefer?", sorted(apartments_filtered_bedrooms[BATHROOMS].unique()))
-    apartments_filtered_bedrooms_bathrooms = apartments_filtered_bedrooms[apartments_filtered_bedrooms[BATHROOMS] == selected_bathrooms]
+    selected_bathrooms = st.selectbox("How many bathrooms would you prefer?", sorted(apartment_data_df[BATHROOMS].unique()))
 
     # Filter for Price
     price_range = st.slider("Price Range ($)", 0, 2500, (200, 2000))
-    apartments_filtered_all = apartments_filtered_bedrooms_bathrooms[(apartments_filtered_bedrooms_bathrooms[RENT].astype(int) >= price_range[0]) & (apartments_filtered_bedrooms_bathrooms[RENT].astype(int) <= price_range[1])]
+    apartments_filtered_all = apartment_data_df[
+        (apartment_data_df[RENT].astype(int) >= price_range[0]) & 
+        (apartment_data_df[RENT].astype(int) <= price_range[1]) &
+        (apartment_data_df[BATHROOMS] == selected_bathrooms) &
+        (apartment_data_df[BEDROOMS] == selected_bedrooms)
+    ]
     
     if len(apartments_filtered_all) == 0:
         st.write("Unfortunately, we do not have data for the requested filters.")
@@ -98,9 +104,9 @@ with findAptTab:
             return matching_distance[0] if len(matching_distance) > 0 else None
 
         apartment_distance_data = apartments_filtered_all.copy()
-        apartment_distance_data['DISTANCE'] = apartment_distance_data.apply(calculate_distance, axis=1)
+        apartment_distance_data['DISTANCE TO {}'.format(selected_college)] = apartment_distance_data.apply(calculate_distance, axis=1)
 
-        final_apartment_data = apartment_distance_data[[LOCATION, BEDROOMS, BATHROOMS, "DISTANCE", SATISFACTION, RENT]]
+        final_apartment_data = apartment_distance_data[[LOCATION, BEDROOMS, BATHROOMS, 'DISTANCE TO {}'.format(selected_college), SATISFACTION, RENT]]
         final_apartment_data.rename(columns=rename_dict, inplace=True)
         final_apartment_data["APARTMENT"] = final_apartment_data.apply(
             lambda row: f"<a target=\"_self\" href='{BASE_URL}?apartment={row['LOCATION'].replace(' ', '%20')}&bedrooms={row['BEDROOMS']}&bathrooms={row['BATHROOMS']}'>{row['LOCATION']}</a>",
@@ -114,7 +120,7 @@ with findAptTab:
             "BATHROOMS": "first",
             "SATISFACTION": lambda x: round(x.mean(), 2),
             "RENT": lambda x: round(x.mean(), 2),  # Calculate the average RENT
-            "DISTANCE": "first"  # Assuming DISTANCE is the same for all rows of the same APARTMENT
+            'DISTANCE TO {}'.format(selected_college): "first"  # Assuming DISTANCE is the same for all rows of the same APARTMENT
         })
 
         cols = ["APARTMENT"] + [col for col in grouped_apartment_data.columns if col != "APARTMENT"]
