@@ -1,90 +1,110 @@
 # app.py
 import streamlit as st
-from google.cloud import bigquery
 import pandas as pd
 
 from config import *
 from utils import get_param
 from visualizations import price_over_time
 
-rows = bigquery_client.list_rows(TABLE_ID)
-data = rows.to_dataframe()
+# Load data from BigQuery
+apartment_data_rows = bigquery_client.list_rows(TABLE_ID)
+apartment_data_df = apartment_data_rows.to_dataframe()
+apartment_data_df[SCHOOL] = apartment_data_df[SCHOOL].str.split(", ")
+apartment_data_df = apartment_data_df.explode(SCHOOL).reset_index(drop=True)
 
-data[SCHOOL] = data[SCHOOL].str.split(", ")
-data = data.explode(SCHOOL).reset_index(drop=True)
+# Load college data from BigQuery
+college_data_rows = bigquery_client.list_rows(CLG_ADD_TABLE_ID)
+college_data_df = college_data_rows.to_dataframe()
 
+# Load distance data from BigQuery
+distance_data_rows = bigquery_client.list_rows(DISTANCE_TABLE_ID)
+distance_data_df = distance_data_rows.to_dataframe()
+distance_data_df.columns = ['Apartment', 'School', 'Distance']
+
+print(distance_data_df["Apartment"].unique())
+
+# Get parameters from URL
 apartment_param = get_param("apartment")
 bedrooms_param = get_param("bedrooms")
 bathrooms_param = get_param("bathrooms")
 
-searchApt, findApt = st.tabs(PAGES)
+# Create tabs
+searchAptTab, findAptTab = st.tabs(PAGES)
 
-with searchApt:
+with searchAptTab:
         
     st.markdown("<br>", unsafe_allow_html=True)
     
-    searched_apartment = st.text_input("Search for an apartment:", value=apartment_param if apartment_param else '')
-    search_button = st.button("Search")
+    apartment_search_input = st.text_input("Search for an apartment:", value=apartment_param if apartment_param else '')
+    search_button_clicked = st.button("Search")
 
-    if search_button:
-        if searched_apartment in data[LOCATION].unique():
-            apartment_param = searched_apartment  # set apartment_param to the newly searched apartment
-            st.experimental_set_query_params(apartment=searched_apartment)  # this line can be removed if not necessary
+    if search_button_clicked:
+        if apartment_search_input in apartment_data_df[LOCATION].unique():
+            apartment_param = apartment_search_input  # set apartment_param to the newly searched apartment
+            st.experimental_set_query_params(apartment=apartment_search_input)  # this line can be removed if not necessary
         else:
-            st.write("Apt not found")
+            st.write("Apartment not found")
 
     if apartment_param:
         # Display apartment details below the search if there's a parameter in the URL or the recent search
         st.title(f"Details for {apartment_param}")
-        st.write("Here you can add more details or data visualizations for the apartment.")
+        
+        specific_apartment_data = apartment_data_df[apartment_data_df[LOCATION] == apartment_param]
+        specific_apartment_data_display = specific_apartment_data[[LOCATION, BEDROOMS, BATHROOMS, SATISFACTION, RENT]]
+        specific_apartment_data_display = specific_apartment_data_display.rename(columns=rename_dict)
+        st.subheader("Previous Rates")
+        st.write(specific_apartment_data_display.to_html(escape=False, index=False), unsafe_allow_html=True)
         st.pyplot(price_over_time(apartment_param, bedrooms_param, bathrooms_param))
 
         
-with findApt:
+with findAptTab:
 
     st.title("Find Apartments")
-
-    # Filter for School of UT
-    schools = st.selectbox("What school are you in?", sorted(data[SCHOOL].unique()))
-    data = data[data[SCHOOL] == schools]
+    unique_colleges = college_data_df["College"].unique()
 
     # Filter for Bedrooms
-    bedrooms = st.selectbox("How many bedrooms would you prefer?", sorted(data[BEDROOMS].unique()))
-    data = data[data[BEDROOMS] == bedrooms]
+    selected_bedrooms = st.selectbox("How many bedrooms would you prefer?", sorted(apartment_data_df[BEDROOMS].unique()))
+    apartments_filtered_bedrooms = apartment_data_df[apartment_data_df[BEDROOMS] == selected_bedrooms]
 
     # Filter for Bathrooms
-    bathrooms = st.selectbox("How many bathrooms would you prefer?", sorted(data[BATHROOMS].unique()))
-    data = data[data[BATHROOMS] == bathrooms]
+    selected_bathrooms = st.selectbox("How many bathrooms would you prefer?", sorted(apartments_filtered_bedrooms[BATHROOMS].unique()))
+    apartments_filtered_bedrooms_bathrooms = apartments_filtered_bedrooms[apartments_filtered_bedrooms[BATHROOMS] == selected_bathrooms]
 
     # Filter for Price
-    price = st.slider("Price Range ($)", 500, 2000, (800, 1300))
-    data = data[(data[RENT].astype(int) >= price[0]) & 
-                (data[RENT].astype(int) <= price[1])]
-
-
-    distance_data = pd.read_csv('datasets/distance_data.csv', header=None, names=['Apartment', 'School', 'Distance'])
-
-    def get_distance(row):
-        mask = (distance_data['Apartment'] == row[LOCATION]) & (distance_data['School'] == row[SCHOOL])
-        matching_distance = distance_data[mask]['Distance'].values
-        return matching_distance[0] if len(matching_distance) > 0 else None
-
-    # Apply the get_distance function row-wise to get the 'WalkTimeMajor' column
-
-    filtered_data = data[[LOCATION, BEDROOMS, BATHROOMS, WALKTIME, SATISFACTION, RENT, SCHOOL]]
-    filtered_data['DISTANCE'] = filtered_data.apply(get_distance, axis=1)
-    filtered_data = filtered_data[[LOCATION, BEDROOMS, BATHROOMS, "DISTANCE", SATISFACTION, RENT]]
-    filtered_data.rename(columns=rename_dict, inplace=True)
-
-    base_url = "http://localhost:8501?apartment="
+    price_range = st.slider("Price Range ($)", 200, 2000, (200, 2000))
+    apartments_filtered_all = apartments_filtered_bedrooms_bathrooms[(apartments_filtered_bedrooms_bathrooms[RENT].astype(int) >= price_range[0]) & (apartments_filtered_bedrooms_bathrooms[RENT].astype(int) <= price_range[1])]
     
-    filtered_data["APARTMENT"] = filtered_data.apply(
-        lambda row: f"<a target=\"_self\" href='http://localhost:8501?apartment={row['LOCATION'].replace(' ', '%20')}&bedrooms={row['BEDROOMS']}&bathrooms={row['BATHROOMS']}'>{row['LOCATION']}</a>",
-        axis=1, result_type='reduce'
-    )
-    filtered_data = filtered_data.drop("LOCATION", axis=1)
+    if len(apartments_filtered_all) == 0:
+        st.write("Unfortunately, we do not have data for the requested filters.")
+    else:
+        selected_college = st.selectbox("What school are you in?", unique_colleges)
 
-    cols = ["APARTMENT"] + [col for col in filtered_data if col != "APARTMENT"]
-    filtered_data = filtered_data[cols]
-    st.write("Previous Rates")
-    st.write(filtered_data.to_html(escape=False, index=False), unsafe_allow_html=True)
+        def calculate_distance(row):
+            mask = (distance_data_df['Apartment'] == row[LOCATION]) & (distance_data_df['School'] == selected_college)
+            matching_distance = distance_data_df[mask]['Distance'].values
+            return matching_distance[0] if len(matching_distance) > 0 else None
+
+        apartment_distance_data = apartments_filtered_all.copy()
+        apartment_distance_data['DISTANCE'] = apartment_distance_data.apply(calculate_distance, axis=1)
+
+        final_apartment_data = apartment_distance_data[[LOCATION, BEDROOMS, BATHROOMS, "DISTANCE", SATISFACTION, RENT]]
+        final_apartment_data.rename(columns=rename_dict, inplace=True)
+        final_apartment_data["APARTMENT"] = final_apartment_data.apply(
+            lambda row: f"<a target=\"_self\" href='{BASE_URL}?apartment={row['LOCATION'].replace(' ', '%20')}&bedrooms={row['BEDROOMS']}&bathrooms={row['BATHROOMS']}'>{row['LOCATION']}</a>",
+            axis=1, result_type='reduce'
+        )
+        final_apartment_data = final_apartment_data.drop("LOCATION", axis=1)
+
+        final_apartment_data["RENT"] = final_apartment_data["RENT"].astype(float)  # Ensure RENT is in a numeric format
+        grouped_apartment_data = final_apartment_data.groupby("APARTMENT", as_index=False).agg({
+            "BEDROOMS": "first",  # Assuming BEDROOMS, BATHROOMS, WALKTIME, SATISFACTION are the same for all rows of the same APARTMENT
+            "BATHROOMS": "first",
+            "SATISFACTION": lambda x: round(x.mean(), 2),
+            "RENT": lambda x: round(x.mean(), 2),  # Calculate the average RENT
+            "DISTANCE": "first"  # Assuming DISTANCE is the same for all rows of the same APARTMENT
+        })
+
+        cols = ["APARTMENT"] + [col for col in grouped_apartment_data.columns if col != "APARTMENT"]
+        grouped_apartment_data = grouped_apartment_data[cols]
+        st.write("Previous Rates")
+        st.write(grouped_apartment_data.to_html(escape=False, index=False), unsafe_allow_html=True)
