@@ -33,12 +33,6 @@ flow = InstalledAppFlow.from_client_config(
     ["https://www.googleapis.com/auth/cloud-platform"]
 )
 
-# This will prompt you to authorize the app in your web browser and provide an authorization code.
-credentials = flow.run_console()
-
-# The credentials object now contains the token you can use to authenticate with Google Cloud services.
-print(credentials.token)
-
 api_key = "AIzaSyDoPCPo-aK28JSPXhMRHBdzL8jCpjrpvfc"
 gm_client = Client(api_key)
 
