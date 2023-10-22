@@ -20,6 +20,7 @@ AMENITY_TABLE_ID = "wampusfyi-402717.ApartmentDetails.AptAmenities"
 REVIEWS_TABLE_ID = "wampusfyi-402717.ApartmentDetails.Reviews"
 =======
 APT_TABLE_ID = 'wampusfyi-402717.DistanceData.AptAddresses'
+REVIEWS_TABLE_ID = "wampusfyi-402717.ApartmentDetails.Reviews"
 
 >>>>>>> 71a58892b566c32ab932371a78b725823430d3c3
 
