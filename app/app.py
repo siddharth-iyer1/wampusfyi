@@ -12,6 +12,7 @@ apartment_data_df = apartment_data_rows.to_dataframe()
 apartment_data_df[SCHOOL] = apartment_data_df[SCHOOL].str.split(", ")
 apartment_data_df = apartment_data_df.explode(SCHOOL).reset_index(drop=True)
 apartment_data_df[LOCATION] = apartment_data_df[LOCATION].str.strip()
+apartment_data_df[SCHOOL] = apartment_data_df[SCHOOL].str.strip()
 
 # Load college data from BigQuery
 college_data_rows = bigquery_client.list_rows(CLG_ADD_TABLE_ID)
@@ -43,6 +44,8 @@ with searchAptTab:
         if apartment_search_input in apartment_data_df[LOCATION].unique():
             apartment_param = apartment_search_input  # set apartment_param to the newly searched apartment
             st.experimental_set_query_params(apartment=apartment_search_input)  # this line can be removed if not necessary
+            st.experimental_rerun()
+            st.experimental_rerun()
         else:
             st.write("Apartment not found")
 
@@ -51,11 +54,17 @@ with searchAptTab:
         st.title(f"Details for {apartment_param}")
         
         specific_apartment_data = apartment_data_df[apartment_data_df[LOCATION] == apartment_param]
-        specific_apartment_data_display = specific_apartment_data[[LOCATION, BEDROOMS, BATHROOMS, SATISFACTION, RENT]]
+        specific_apartment_data_display = specific_apartment_data[[LOCATION, BEDROOMS, BATHROOMS, SATISFACTION, RENT, LEASESIGN]]
         specific_apartment_data_display = specific_apartment_data_display.rename(columns=rename_dict)
         st.subheader("Previous Rates")
+        
         st.write(specific_apartment_data_display.to_html(escape=False, index=False), unsafe_allow_html=True)
-        st.pyplot(price_over_time(apartment_param, bedrooms_param, bathrooms_param))
+        ""
+        ""
+        ""
+        pot_graph = price_over_time(apartment_param, bedrooms_param, bathrooms_param)
+        if pot_graph:
+            st.pyplot(pot_graph)
 
         
 with findAptTab:
@@ -72,7 +81,7 @@ with findAptTab:
     apartments_filtered_bedrooms_bathrooms = apartments_filtered_bedrooms[apartments_filtered_bedrooms[BATHROOMS] == selected_bathrooms]
 
     # Filter for Price
-    price_range = st.slider("Price Range ($)", 200, 2000, (200, 2000))
+    price_range = st.slider("Price Range ($)", 0, 2500, (200, 2000))
     apartments_filtered_all = apartments_filtered_bedrooms_bathrooms[(apartments_filtered_bedrooms_bathrooms[RENT].astype(int) >= price_range[0]) & (apartments_filtered_bedrooms_bathrooms[RENT].astype(int) <= price_range[1])]
     
     if len(apartments_filtered_all) == 0:

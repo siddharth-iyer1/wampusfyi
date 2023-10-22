@@ -7,8 +7,11 @@ from config import PROJECT_ID, APT_TABLE_ID, bigquery_client
 
 
 def price_over_time(name, beds, baths):
-    beds = int(beds)
-    baths = int(baths)
+    try:
+        beds = int(beds)
+        baths = int(baths)
+    except:
+        return
     # GCP Big Query Client, Pull Data
     apt_rows = bigquery_client.list_rows(APT_TABLE_ID)
     apt_df = apt_rows.to_dataframe()
@@ -50,10 +53,10 @@ def price_over_time(name, beds, baths):
     plt.ylabel("Monthly Rate", fontsize=15, labelpad=15)
 
     # Setting minor and major grid lines for x-axis
-    plt.gca().xaxis.set_minor_locator(mdates.WeekdayLocator(byweekday=mdates.MO))
-    plt.gca().xaxis.set_minor_formatter(mdates.DateFormatter('%d'))
-    plt.gca().xaxis.set_major_locator(mdates.MonthLocator())
-    plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%b %Y'))
+    # plt.gca().xaxis.set_minor_locator(mdates.MonthLocator(interval=1))  # Minor ticks every month
+    # plt.gca().xaxis.set_minor_formatter(mdates.DateFormatter('%b'))
+    # plt.gca().xaxis.set_major_locator(mdates.MonthLocator(interval=4))  # Major ticks every 4 months
+    # plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%b %Y'))
 
     # Improve x-ticks visibility
     plt.gcf().autofmt_xdate()
