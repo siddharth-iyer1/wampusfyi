@@ -100,16 +100,19 @@ with searchAptTab:
     search_button_clicked = st.button("Search")
 
     if search_button_clicked:
-        cleaned_input = apartment_search_input.strip().lower()
-        cleaned_apartment_names = apartment_data_df[LOCATION].str.strip().str.lower().unique()
-        if cleaned_input in cleaned_apartment_names:
-            # Convert back to original case to use as parameter
-            original_case_apartment = apartment_data_df[apartment_data_df[LOCATION].str.strip().str.lower() == cleaned_input][LOCATION].values[0]
-            apartment_param = original_case_apartment
-            st.experimental_set_query_params(apartment=original_case_apartment)
-            st.experimental_rerun()
+        if apartment_search_input != "":
+            cleaned_input = apartment_search_input.strip().lower()
+            cleaned_apartment_names = apartment_data_df[LOCATION].str.strip().str.lower().unique()
+            if cleaned_input in cleaned_apartment_names:
+                # Convert back to original case to use as parameter
+                original_case_apartment = apartment_data_df[apartment_data_df[LOCATION].str.strip().str.lower() == cleaned_input][LOCATION].values[0]
+                apartment_param = original_case_apartment
+                st.experimental_set_query_params(apartment=original_case_apartment)
+                st.experimental_rerun()
+            else:
+                st.write("Apartment not found")
         else:
-            st.write("Apartment not found")
+            st.warning("Please enter a value to search")
 
     if apartment_param:
     # Display apartment details below the search if there's a parameter in the URL or the recent search
