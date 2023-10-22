@@ -3,9 +3,9 @@ import streamlit as st
 import pandas as pd
 import textwrap
 
-from config import *
-from utils import get_param
-from visualizations import price_over_time
+from app.config import *
+from app.utils import get_param
+from app.visualizations import price_over_time
 import pydeck as pdk
 from googlemaps import Client
 import json
