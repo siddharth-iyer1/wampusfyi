@@ -22,7 +22,7 @@ class GooglePlaces(object):
 
 api_key = 'AIzaSyDoPCPo-aK28JSPXhMRHBdzL8jCpjrpvfc'
 
-file_path = '/Users/nihalkyasa/Documents/Other/wampusfyi/apartment_data/apt_addresses.csv'
+file_path = 'apartment_data/apt_addresses.csv'
 apartment_addys = pd.read_csv(file_path)
 print(apartment_addys)
 
