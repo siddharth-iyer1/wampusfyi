@@ -29,6 +29,9 @@ distance_data_rows = bigquery_client.list_rows(DISTANCE_TABLE_ID)
 distance_data_df = distance_data_rows.to_dataframe()
 distance_data_df.columns = ['Apartment', 'School', 'Distance']
 
+amenity_data_rows=bigquery_client.list_rows(AMENITY_TABLE_ID)
+amenity_data_df = amenity_data_rows.to_dataframe()
+
 # Load data from BigQuery
 apartment_data_df = load_apartment_data()
 college_data_df = load_college_data()
