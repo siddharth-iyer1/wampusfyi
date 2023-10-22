@@ -47,6 +47,8 @@ apartment_param = get_param("apartment")
 bedrooms_param = get_param("bedrooms")
 bathrooms_param = get_param("bathrooms")
 
+st.markdown(f"<h1><span style='color: #cc5500'>Wampus.FYI</span>: UT Austin West Campus Apartment Info</h1>", unsafe_allow_html=True)
+
 apt_rows = bigquery_client.list_rows(APT_TABLE_ID)
 apt_df = apt_rows.to_dataframe()
 geocode_result = []
@@ -63,23 +65,19 @@ for i in range(len(apt_df)):
 
 for i,row in apt_df.iterrows():
     marker_data.append({"name": row['Apartment'], "lat": lats[i], "lon": lons[i]})
-
-with open('marker_data.json', 'w') as f:
-    # Step 4: Use json.dump to write the list to the file
-    # Step 5: Specify indent for pretty printing (optional)
-    json.dump(marker_data, f, indent=4)
+    
 marker_layer = pdk.Layer(
-    "Apartments",
+    "ScatterplotLayer",
     data=marker_data,
     get_position=["lon", "lat"],
-    get_radius=200,  # Adjust the marker size as needed
-    get_fill_color=[0, 255, 0],  # RGB color for markers (green in this example)
+    get_radius=25,  # Adjust the marker size as needed
+    get_fill_color=[191, 87, 0],  # RGB color for markers (green in this example)
 )
 
 view_state = pdk.ViewState(
-    latitude=30.2672,  # Center latitude
-    longitude=-97.7431,  # Center longitude
-    zoom=13,  # Adjust the zoom level as needed
+    latitude=30.2883838,  # Center latitude
+    longitude=-97.7434334,  # Center longitude
+    zoom=14,  # Adjust the zoom level as needed
 )
 
 r = pdk.Deck(
@@ -88,6 +86,7 @@ r = pdk.Deck(
 )
 st.pydeck_chart(r)
 
+st.subheader("Apartment Finder")
 
 # Create tabs
 searchAptTab, findAptTab = st.tabs(["Search Apartment", "Find Apartment"])
@@ -100,16 +99,19 @@ with searchAptTab:
     search_button_clicked = st.button("Search")
 
     if search_button_clicked:
-        cleaned_input = apartment_search_input.strip().lower()
-        cleaned_apartment_names = apartment_data_df[LOCATION].str.strip().str.lower().unique()
-        if cleaned_input in cleaned_apartment_names:
-            # Convert back to original case to use as parameter
-            original_case_apartment = apartment_data_df[apartment_data_df[LOCATION].str.strip().str.lower() == cleaned_input][LOCATION].values[0]
-            apartment_param = original_case_apartment
-            st.experimental_set_query_params(apartment=original_case_apartment)
-            st.experimental_rerun()
+        if apartment_search_input != "":
+            cleaned_input = apartment_search_input.strip().lower()
+            cleaned_apartment_names = apartment_data_df[LOCATION].str.strip().str.lower().unique()
+            if cleaned_input in cleaned_apartment_names:
+                # Convert back to original case to use as parameter
+                original_case_apartment = apartment_data_df[apartment_data_df[LOCATION].str.strip().str.lower() == cleaned_input][LOCATION].values[0]
+                apartment_param = original_case_apartment
+                st.experimental_set_query_params(apartment=original_case_apartment)
+                st.experimental_rerun()
+            else:
+                st.write("Apartment not found")
         else:
-            st.write("Apartment not found")
+            st.warning("Please enter a value")
 
     if apartment_param:
     # Display apartment details below the search if there's a parameter in the URL or the recent search
@@ -148,13 +150,24 @@ with findAptTab:
     unique_colleges = college_data_df["College"].unique()
 
     # Filter for Bedrooms
-    selected_bedrooms = st.selectbox("How many bedrooms would you prefer?", sorted(apartment_data_df[BEDROOMS].unique()), 3)
+    col1, gap1, col2 = st.columns([8,1,8])
 
-    # Filter for Bathrooms
-    selected_bathrooms = st.selectbox("How many bathrooms would you prefer?", sorted(apartment_data_df[BATHROOMS].unique()), 3)
+    # Reserve space for widgets
+    with col1:
+        bedroom_space = st.empty()
+        ""
+        bathroom_space = st.empty()
 
-    # Filter for Price
-    price_range = st.slider("Price Range ($)", 100, 2000, (200, 1900))
+    with col2:
+        price_space = st.empty()
+        college_space = st.empty()
+
+    # Add widgets to the reserved spaces
+    selected_bedrooms = bedroom_space.selectbox("How many bedrooms would you prefer?", sorted(apartment_data_df[BEDROOMS].unique()), 3)
+    selected_bathrooms = bathroom_space.selectbox("How many bathrooms would you prefer?", sorted(apartment_data_df[BATHROOMS].unique()), 3)
+    price_range = price_space.slider("Price Range ($)", 100, 2000, (200, 1900))
+    selected_college = college_space.selectbox("What school are you in?", unique_colleges)
+
     apartments_filtered_all = apartment_data_df[
         (apartment_data_df[RENT].astype(int) >= price_range[0]) & 
         (apartment_data_df[RENT].astype(int) <= price_range[1]) &
@@ -165,8 +178,6 @@ with findAptTab:
     if len(apartments_filtered_all) == 0:
         st.write("Unfortunately, we do not have data for the requested filters.")
     else:
-        selected_college = st.selectbox("What school are you in?", unique_colleges)
-
         def calculate_distance(row):
             mask = (distance_data_df['Apartment'] == row[LOCATION]) & (distance_data_df['School'] == selected_college)
             matching_distance = distance_data_df[mask]['Distance'].values
@@ -178,7 +189,7 @@ with findAptTab:
         final_apartment_data = apartment_distance_data[[LOCATION, BEDROOMS, BATHROOMS, 'Distance to {}'.format(selected_college), SATISFACTION, RENT]]
         final_apartment_data.rename(columns=rename_dict, inplace=True)
         final_apartment_data["Apartment"] = final_apartment_data.apply(
-            lambda row: f"<a style='color: #cc5500;' target=\"_self\" href='{BASE_URL}?apartment={row['Location'].replace(' ', '%20')}&bedrooms={row['Bedrooms']}&bathrooms={row['Bathrooms']}'>{row['Location']}</a>",
+            lambda row: f"<a style='color: #cc5500;' target=\"_self\" href='{BASE_URL}?apartment={row['Location'].replace(' ', '%20')}&bedrooms={row['Bedrooms']}&bathrooms={row['Bathrooms']}#apartment-finder'>{row['Location']}</a>",
             axis=1, result_type='reduce'
         )
         # final_apartment_data = final_apartment_data.drop("Location", axis=1)
