@@ -101,13 +101,13 @@ with findAptTab:
     unique_colleges = college_data_df["College"].unique()
 
     # Filter for Bedrooms
-    selected_bedrooms = st.selectbox("How many bedrooms would you prefer?", sorted(apartment_data_df[BEDROOMS].unique()))
+    selected_bedrooms = st.selectbox("How many bedrooms would you prefer?", sorted(apartment_data_df[BEDROOMS].unique()), 3)
 
     # Filter for Bathrooms
-    selected_bathrooms = st.selectbox("How many bathrooms would you prefer?", sorted(apartment_data_df[BATHROOMS].unique()))
+    selected_bathrooms = st.selectbox("How many bathrooms would you prefer?", sorted(apartment_data_df[BATHROOMS].unique()), 3)
 
     # Filter for Price
-    price_range = st.slider("Price Range ($)", 0, 2500, (200, 2000))
+    price_range = st.slider("Price Range ($)", 100, 2000, (200, 1900))
     apartments_filtered_all = apartment_data_df[
         (apartment_data_df[RENT].astype(int) >= price_range[0]) & 
         (apartment_data_df[RENT].astype(int) <= price_range[1]) &
