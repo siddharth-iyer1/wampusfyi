@@ -6,31 +6,41 @@ from config import *
 from utils import get_param
 from visualizations import price_over_time
 
+st.set_page_config(layout="wide")
+
+@st.cache_data
+def load_apartment_data():
+    apartment_data_rows = bigquery_client.list_rows(TABLE_ID)
+    apartment_data_df = apartment_data_rows.to_dataframe()
+    apartment_data_df[SCHOOL] = apartment_data_df[SCHOOL].str.split(", ")
+    apartment_data_df = apartment_data_df.explode(SCHOOL).reset_index(drop=True)
+    apartment_data_df[LOCATION] = apartment_data_df[LOCATION].str.strip()
+    apartment_data_df[SCHOOL] = apartment_data_df[SCHOOL].str.strip()
+    return apartment_data_df
+
+@st.cache_data
+def load_college_data():
+    college_data_rows = bigquery_client.list_rows(CLG_ADD_TABLE_ID)
+    college_data_df = college_data_rows.to_dataframe()
+    return college_data_df
+
+@st.cache_data
+def load_distance_data():
+    distance_data_rows = bigquery_client.list_rows(DISTANCE_TABLE_ID)
+    distance_data_df = distance_data_rows.to_dataframe()
+    distance_data_df.columns = ['Apartment', 'School', 'Distance']
+    return distance_data_df
+
 # Load data from BigQuery
-apartment_data_rows = bigquery_client.list_rows(TABLE_ID)
-apartment_data_df = apartment_data_rows.to_dataframe()
-apartment_data_df[SCHOOL] = apartment_data_df[SCHOOL].str.split(", ")
-apartment_data_df = apartment_data_df.explode(SCHOOL).reset_index(drop=True)
-apartment_data_df[LOCATION] = apartment_data_df[LOCATION].str.strip()
-apartment_data_df[SCHOOL] = apartment_data_df[SCHOOL].str.strip()
-
-# Load college data from BigQuery
-college_data_rows = bigquery_client.list_rows(CLG_ADD_TABLE_ID)
-college_data_df = college_data_rows.to_dataframe()
-
-# Load distance data from BigQuery
-distance_data_rows = bigquery_client.list_rows(DISTANCE_TABLE_ID)
-distance_data_df = distance_data_rows.to_dataframe()
-distance_data_df.columns = ['Apartment', 'School', 'Distance']
-
-print(distance_data_df["Apartment"].unique())
+apartment_data_df = load_apartment_data()
+college_data_df = load_college_data()
+distance_data_df = load_distance_data()
 
 # Get parameters from URL
 apartment_param = get_param("apartment")
 bedrooms_param = get_param("bedrooms")
 bathrooms_param = get_param("bathrooms")
 
-st.set_page_config(layout="wide")
 
 
 # Create tabs
